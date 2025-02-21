@@ -2,23 +2,24 @@ package com.project.order.service;
 
 import com.project.order.models.Order;
 import org.springframework.stereotype.Component;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 @Component
 public class OrderQueue
 {
-    private final BlockingQueue<Order> queue = new LinkedBlockingQueue<>();
+    private final Queue<Order> queue = new LinkedList<>();
 
     public void addOrder(Order order) {
-        queue.add(order);
+        queue.offer(order);
     }
 
-    public Order getNextOrder() throws InterruptedException {
-        return queue.take();
+    public Order getNextOrder() {
+        return queue.poll();
     }
 
-    public int getQueueSize() {
-        return queue.size();
+    public boolean isEmpty() {
+        return queue.isEmpty();
     }
 }

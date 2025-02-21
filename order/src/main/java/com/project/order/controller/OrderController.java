@@ -21,21 +21,24 @@ public class OrderController
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<Order> getOrder(@PathVariable String orderId) {
-        return orderService.getOrder(orderId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Order> getOrderStatus(@PathVariable Long orderId) {
+        return ResponseEntity.ok(orderService.getOrderStatus(orderId));
     }
 
-    @GetMapping
+    @GetMapping()
     public ResponseEntity<List<Order>> getAllOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
     @DeleteMapping
     public ResponseEntity<String> deleteAllOrders() {
-        orderService.deleteAllorders();
+        orderService.deleteAllOrders();
         return ResponseEntity.ok("All orders have been deleted");
     }
+
+    // @GetMapping("/metrics")
+    // public ResponseEntity<Map<String, Object>> getMetrics() {
+    //     return ResponseEntity.ok(orderService.getMetrics());
+    // }
     
 }
