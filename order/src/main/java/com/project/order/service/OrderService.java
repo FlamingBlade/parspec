@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService
@@ -74,16 +76,35 @@ public class OrderService
         Map<String, Object> metrics = new HashMap<>();
         metrics.put("totalOrders", orderRepository.count());
         metrics.put("averageProcessingTime", calculateAverageProcessingTime());
+        metrics.put("orderStatusCounts", getOrderStatusCounts());
         return metrics;
     }
 
     private double calculateAverageProcessingTime() {
         List<Order> completedOrders = orderRepository.findByStatus(OrderStatus.COMPLETED);
-        return completedOrders.stream()
-                .mapToLong(order -> ChronoUnit.SECONDS.between(order.getCreatedAt(), order.getProcessedAt()))
-                .average()
-                .orElse(0);
+        if (completedOrders.isEmpty()) {
+            return 0;
+        }
+        long totalProcessingTime = 0;
+        for (Order order : completedOrders) {
+            long processingTime = ChronoUnit.SECONDS.between(order.getCreatedAt(), order.getProcessedAt());
+            totalProcessingTime += processingTime;
+        }
+    
+        return (double) totalProcessingTime / completedOrders.size();
     }
+    
+
+    private Map<OrderStatus, Long> getOrderStatusCounts() {
+        Map<OrderStatus, Long> statusCounts = new HashMap<>();
+        for (OrderStatus status : OrderStatus.values()) {
+            long count = orderRepository.findByStatus(status).size();
+            statusCounts.put(status, count);
+        }
+        return statusCounts;
+    }
+    
+    
 
     
 

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import com.project.order.service.OrderService;
 import com.project.order.models.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/orders")
@@ -36,9 +37,9 @@ public class OrderController
         return ResponseEntity.ok("All orders have been deleted");
     }
 
-    // @GetMapping("/metrics")
-    // public ResponseEntity<Map<String, Object>> getMetrics() {
-    //     return ResponseEntity.ok(orderService.getMetrics());
-    // }
+    @GetMapping("/metrics")
+    public ResponseEntity<Map<String, Object>> getMetrics() {
+        return ResponseEntity.ok(orderService.getMetrics());
+    }
     
 }
