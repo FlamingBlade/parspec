@@ -5,6 +5,7 @@ import com.project.order.enums.*;
 import com.project.order.respository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,23 +47,37 @@ public class OrderService
                 .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
-    @Scheduled(fixedRate = 1000)
+    public void deleteAllOrders() {
+        orderRepository.deleteAll();
+        System.out.println("All orders have been deleted");
+    }
+
+    public List<Order> getAllOrders() {
+        List<Order>response= orderRepository.findAll();
+        return response;
+        
+    }
+
+    @Scheduled(fixedRate = 100)// called every 100ms
     public void processOrders() {
         if (!orderQueue.isEmpty()) {
             Order order = orderQueue.getNextOrder();
+            processOrderAsync(order);
+        }
+    }
+
+    @Async("asyncExecutor")
+    public void processOrderAsync(Order order) {
+        try {
             order.setStatus(OrderStatus.PROCESSING);
             orderRepository.save(order);
-            
-            // Simulate processing time
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            
+            Thread.sleep(2000);// assumed processing time
             order.setStatus(OrderStatus.COMPLETED);
             order.setProcessedAt(LocalDateTime.now());
             orderRepository.save(order);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.out.println("Processing interrupted for order with orderId"+ order.getOrderId());
         }
     }
 
@@ -81,16 +96,7 @@ public class OrderService
                 .orElse(0);
     }
 
-    public void deleteAllOrders() {
-        orderRepository.deleteAll();
-        System.out.println("All orders have been deleted");
-    }
-
-    public List<Order> getAllOrders() {
-        List<Order>response= orderRepository.findAll();
-        return response;
-        
-    }
+    
 
     
 }
