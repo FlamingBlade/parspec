@@ -10,11 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class OrderService
@@ -49,7 +47,7 @@ public class OrderService
         
     }
 
-    @Scheduled(fixedRate = 100)// called every 100ms
+    @Scheduled(fixedRate = 10)
     public void processOrders() {
         if (!orderQueue.isEmpty()) {
             Order order = orderQueue.getNextOrder();
@@ -59,17 +57,11 @@ public class OrderService
 
     @Async("asyncExecutor")
     public void processOrderAsync(Order order) {
-        try {
             order.setStatus(OrderStatus.PROCESSING);
             orderRepository.save(order);
-            Thread.sleep(2000);// assumed processing time
             order.setStatus(OrderStatus.COMPLETED);
             order.setProcessedAt(LocalDateTime.now());
             orderRepository.save(order);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.out.println("Processing interrupted for order with orderId"+ order.getOrderId());
-        }
     }
 
     public Map<String, Object> getMetrics() {
