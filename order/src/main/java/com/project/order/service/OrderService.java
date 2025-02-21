@@ -4,20 +4,15 @@ import com.project.order.models.Order;
 import com.project.order.enums.*;
 import com.project.order.respository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class OrderService
@@ -27,12 +22,6 @@ public class OrderService
 
     @Autowired
     private OrderQueue orderQueue;
-
-    @Autowired
-    public OrderService(OrderRepository orderRepository, OrderQueue orderQueue) {
-        this.orderRepository = orderRepository;
-        this.orderQueue = orderQueue;
-    }
 
     public Order createOrder(Order order) {
         order.setStatus(OrderStatus.PENDING);
